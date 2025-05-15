@@ -29,6 +29,12 @@ class AuthController
         $email = trim($data['email']);
         $password = $data['password'];
 
+        $user = User::getByEmail($email);
+        if ($user) {
+            echo json_encode(['error' => 'Email already in use.']);
+            return;
+        }
+
         User::create($first_name, $last_name, $email, $password);
 
         echo json_encode(['message' => 'User created successfully']);
