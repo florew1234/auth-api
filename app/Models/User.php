@@ -30,6 +30,10 @@ class User implements JsonSerializable
             'email' => $this->email,
         ];
     }
+    public function getEmail()
+    {
+        return $this->email;
+    }
 
     public static function create($first_name, $last_name, $email, $password)
     {
@@ -59,6 +63,21 @@ class User implements JsonSerializable
         }
         return null;
     }
+
+    public static function getById($id)
+    {
+        $db = (new \App\Core\Database())->connect();
+        $stmt = $db->prepare("SELECT * FROM users WHERE id = :id");
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+        $user = $stmt->fetch();
+
+        if ($user) {
+            return new self($user['id'], $user['first_name'], $user['last_name'], $user['email'], $user['password']);
+        }
+        return null;
+    }
+
 
     public static function updateUserInfo($id, $first_name, $last_name)
     {

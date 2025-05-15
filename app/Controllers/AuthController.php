@@ -8,6 +8,41 @@ use Dotenv\Dotenv;
 
 class AuthController
 {
+
+    private function getAuthenticatedUser()
+{
+    $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
+    $dotenv->load();
+
+    $headers = getallheaders();
+    $token = $headers['X-AUTH-TOKEN'] ?? null;
+
+    if (!$token) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Missing token']);
+        exit;
+    }
+
+    try {
+        $decoded = JWT::decode($token, new \Firebase\JWT\Key($_ENV['JWT_SECRET_KEY'], 'HS256'));
+        $userId = $decoded->sub;
+        $user = User::getById($userId);
+
+        if (!$user) {
+            http_response_code(401);
+            echo json_encode(['error' => 'User not found']);
+            exit;
+        }
+
+        return $user;
+    } catch (\Exception $e) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Invalid token', 'details' => $e->getMessage()]);
+        exit;
+    }
+}
+
+
     // Méthode pour l'inscription d'un utilisateur
     public function register()
     {
@@ -111,37 +146,32 @@ class AuthController
         }
     }
 
-    public function updateUserInfo()
-    {
-        $data = json_decode(file_get_contents("php://input"), true);
+   public function updateUserInfo()
+{
+    $user = $this->getAuthenticatedUser();
 
-        if (
-            empty($data['first_name']) || !is_string($data['first_name']) ||
-            empty($data['last_name']) || !is_string($data['last_name']) ||
-            empty($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)
-        ) {
-            echo json_encode(['error' => 'Invalid input data']);
-            return;
-        }
+    $data = json_decode(file_get_contents("php://input"), true);
 
-        $first_name = trim($data['first_name']);
-        $last_name = trim($data['last_name']);
-        $email = trim($data['email']);
-
-        $user = User::getByEmail($email);
-        if (!$user) {
-            echo json_encode(['error' => 'User not found']);
-            return;
-        }
-
-        if (User::updateUserInfo($user->id, $first_name, $last_name, $email)) {
-            $updatedUser = User::getByEmail($email);
-            echo json_encode([
-                'message' => 'Success, user updated',
-                'user' => $updatedUser
-            ]);
-        } else {
-            echo json_encode(['error' => 'Failed to update user']);
-        }
+    if (
+        empty($data['first_name']) || !is_string($data['first_name']) ||
+        empty($data['last_name']) || !is_string($data['last_name'])
+    ) {
+        echo json_encode(['error' => 'Invalid input data']);
+        return;
     }
+
+    $first_name = trim($data['first_name']);
+    $last_name = trim($data['last_name']);
+
+    if (User::updateUserInfo($user->id, $first_name, $last_name)) {
+        $updatedUser = User::getById($user->id);
+        echo json_encode([
+            'message' => 'Success, user updated',
+            'user' => $updatedUser
+        ]);
+    } else {
+        echo json_encode(['error' => 'Failed to update user']);
+    }
+}
+
 }
