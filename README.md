@@ -28,6 +28,15 @@ Une API simple d’authentification construite avec PHP natif, utilisant **JWT (
 
 ---
 
+## Packages utilisés
+
+- firebase/php-jwt : pour la gestion des tokens,
+- vlucas/phpdotenv : pour chrager les variables depuis le .env dans d'autre fichiers ,
+- zircote/swagger-php : pour la documentation de l'API,
+
+
+---
+
 ## Organisation minimale des fichiers
 
 ```
@@ -61,6 +70,14 @@ Une API simple d’authentification construite avec PHP natif, utilisant **JWT (
    git clone https://github.com/florew1234/auth-api.git
    cd auth-api
    ```
+
+2. Commande à exécuter :
+   ```
+  composer install : pour installer toutes les dépendances du projet.
+  ./vendor/bin/openapi --output swagger.json ./docs ./app : pour générer la documentation du projet.
+   ```
+
+
 
 2. Configure ta base de données :
    - Crée une base `auth_api`
