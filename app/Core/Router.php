@@ -44,8 +44,6 @@ class Router {
         // Si aucune route ne correspond
         http_response_code(404);
         echo json_encode(['message' => 'Route not found', 'route' => $this->test]);
-
-
         
     }
 }

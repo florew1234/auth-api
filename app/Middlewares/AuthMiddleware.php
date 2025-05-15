@@ -27,8 +27,8 @@ class AuthMiddleware {
     $key = $_ENV['JWT_SECRET_KEY'] ?? null;
 
     try {
-        $decoded = JWT::decode($jwt, new Key($key, 'HS256')); // ✅ Corrigé
-        return $decoded->sub; // On retourne l'ID de l'utilisateur
+        $decoded = JWT::decode($jwt, new Key($key, 'HS256')); 
+        return $decoded->sub; 
     } catch (Exception $e) {
         http_response_code(401);
         echo json_encode(['message' => $e->getMessage(), 'key' => $key]);

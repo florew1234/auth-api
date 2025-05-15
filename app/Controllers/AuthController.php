@@ -2,23 +2,31 @@
 
 namespace App\Controllers;
 
-
-
 use App\Models\User;
 use Firebase\JWT\JWT;
 use Dotenv\Dotenv;
 
-
 class AuthController
 {
-
     // Méthode pour l'inscription d'un utilisateur
     public function register()
     {
         $data = json_decode(file_get_contents("php://input"), true);
-        $first_name = $data['first_name'];
-        $last_name = $data['last_name'];
-        $email = $data['email'];
+
+        // Validation des champs
+        if (
+            empty($data['first_name']) || !is_string($data['first_name']) ||
+            empty($data['last_name']) || !is_string($data['last_name']) ||
+            empty($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL) ||
+            empty($data['password']) || strlen($data['password']) < 6
+        ) {
+            echo json_encode(['error' => 'Invalid input data. Make sure first_name and last_name are strings, email is valid and password is at least 6 characters.']);
+            return;
+        }
+
+        $first_name = trim($data['first_name']);
+        $last_name = trim($data['last_name']);
+        $email = trim($data['email']);
         $password = $data['password'];
 
         User::create($first_name, $last_name, $email, $password);
@@ -27,16 +35,24 @@ class AuthController
     }
 
     // Méthode pour la connexion d'un utilisateur
-
     public function login()
     {
-
-
         $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
         $dotenv->load();
 
         $data = json_decode(file_get_contents("php://input"), true);
-        $email = $data['email'];
+
+        if (empty($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            echo json_encode(['error' => 'Invalid email']);
+            return;
+        }
+
+        if (empty($data['password']) || !is_string($data['password'])) {
+            echo json_encode(['error' => 'Invalid password']);
+            return;
+        }
+
+        $email = trim($data['email']);
         $password = $data['password'];
 
         $user = User::getByEmail($email);
@@ -50,7 +66,6 @@ class AuthController
             return;
         }
 
-        // Générer un JWT
         $key = $_ENV['JWT_SECRET_KEY'] ?? null;
 
         if (!$key || !is_string($key)) {
@@ -75,10 +90,18 @@ class AuthController
     public function getUserInfo()
     {
         $data = json_decode(file_get_contents("php://input"), true);
-        $email = $data['email'];
+
+        if (empty($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            echo json_encode(['error' => 'Invalid email']);
+            return;
+        }
+
+        $email = trim($data['email']);
         $user = User::getByEmail($email);
         if ($user) {
-            echo json_encode(['message' => 'Succes', 'user' => $user]);
+            echo json_encode(['message' => 'Success', 'user' => $user]);
+        } else {
+            echo json_encode(['error' => 'User not found']);
         }
     }
 
@@ -86,14 +109,18 @@ class AuthController
     {
         $data = json_decode(file_get_contents("php://input"), true);
 
-        if (!isset($data['first_name'], $data['last_name'], $data['email'])) {
-            echo json_encode(['error' => 'Missing required fields']);
+        if (
+            empty($data['first_name']) || !is_string($data['first_name']) ||
+            empty($data['last_name']) || !is_string($data['last_name']) ||
+            empty($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)
+        ) {
+            echo json_encode(['error' => 'Invalid input data']);
             return;
         }
 
-        $first_name = $data['first_name'];
-        $last_name = $data['last_name'];
-        $email = $data['email'];
+        $first_name = trim($data['first_name']);
+        $last_name = trim($data['last_name']);
+        $email = trim($data['email']);
 
         $user = User::getByEmail($email);
         if (!$user) {
