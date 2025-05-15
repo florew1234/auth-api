@@ -1,6 +1,4 @@
 <?php
-
-
 /**
  * @OA\Info(
  *     title="API Simple en PHP",

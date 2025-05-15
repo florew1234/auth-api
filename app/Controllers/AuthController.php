@@ -103,7 +103,7 @@ class AuthController
             empty($data['first_name']) || !is_string($data['first_name']) ||
             empty($data['last_name']) || !is_string($data['last_name']) ||
             empty($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL) ||
-            empty($data['password']) || strlen($data['password']) < 12
+            empty($data['password']) || strlen($data['password']) < 6
         ) {
             echo json_encode(['error' => 'Invalid input data. Make sure first_name and last_name are strings, email is valid and password is at least 6 characters.']);
             return;
