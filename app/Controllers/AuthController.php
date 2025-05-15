@@ -16,11 +16,12 @@ class AuthController
     public function register()
     {
         $data = json_decode(file_get_contents("php://input"), true);
-        $username = $data['username'];
+        $first_name = $data['first_name'];
+        $last_name = $data['last_name'];
         $email = $data['email'];
         $password = $data['password'];
 
-        User::create($username, $email, $password);
+        User::create($first_name, $last_name, $email, $password);
 
         echo json_encode(['message' => 'User created successfully']);
     }
@@ -31,7 +32,7 @@ class AuthController
     {
 
 
-        $dotenv = Dotenv::createImmutable(__DIR__.'/../../');
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
         $dotenv->load();
 
         $data = json_decode(file_get_contents("php://input"), true);
@@ -39,8 +40,13 @@ class AuthController
         $password = $data['password'];
 
         $user = User::getByEmail($email);
-        if (!$user || !password_verify($password, $user->password)) {
-            echo json_encode(['message' => 'Invalid credentials']);
+        if (!$user) {
+            echo json_encode(['message' => 'User not found']);
+            return;
+        }
+
+        if (!password_verify($password, $user->password)) {
+            echo json_encode(['message' => 'Incorrect password']);
             return;
         }
 
@@ -66,18 +72,43 @@ class AuthController
         echo json_encode(['token' => $jwt]);
     }
 
-    public function getUserInfo() {
+    public function getUserInfo()
+    {
         $data = json_decode(file_get_contents("php://input"), true);
         $email = $data['email'];
         $user = User::getByEmail($email);
         if ($user) {
-            echo json_encode(['message' => 'Succes']);
+            echo json_encode(['message' => 'Succes', 'user' => $user]);
         }
-
-
     }
 
-    public function updateUserInfo() {
-        
+    public function updateUserInfo()
+    {
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        if (!isset($data['first_name'], $data['last_name'], $data['email'])) {
+            echo json_encode(['error' => 'Missing required fields']);
+            return;
+        }
+
+        $first_name = $data['first_name'];
+        $last_name = $data['last_name'];
+        $email = $data['email'];
+
+        $user = User::getByEmail($email);
+        if (!$user) {
+            echo json_encode(['error' => 'User not found']);
+            return;
+        }
+
+        if (User::updateUserInfo($user->id, $first_name, $last_name, $email)) {
+            $updatedUser = User::getByEmail($email);
+            echo json_encode([
+                'message' => 'Success, user updated',
+                'user' => $updatedUser
+            ]);
+        } else {
+            echo json_encode(['error' => 'Failed to update user']);
+        }
     }
 }

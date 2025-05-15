@@ -12,6 +12,6 @@ $router->add('POST', '/login', [new AuthController(), 'login']);
 
 // Routes protégées (requièrent un JWT)
 $router->add('GET', '/me', [new AuthController(), 'getUserInfo'], new AuthMiddleware());
-$router->add('PUT', '/user', [new AuthController(), 'updateUserInfo'], new AuthMiddleware());
+$router->add('PUT', '/userUpdate', [new AuthController(), 'updateUserInfo'], new AuthMiddleware());
 
 return $router;
