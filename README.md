@@ -162,6 +162,8 @@ curl -X PUT http://localhost:8000/me/update \
 ```
 
 ---
+## Lien vers la Documentation
+http://localhost:8000/swagger-ui/dist/index.html
 
 ## Auteur
 

@@ -1,0 +1,212 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API Simple en PHP",
+        "description": "Une API sans framework avec documentation Swagger",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000",
+            "description": "Serveur local"
+        }
+    ],
+    "paths": {
+        "/register": {
+            "post": {
+                "summary": "Inscription d'un utilisateur",
+                "description": "Permet à un nouvel utilisateur de s'inscrire en fournissant son prénom, nom, email et mot de passe.",
+                "operationId": "c03b45aa901e99c883ff52eab8b57c4b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "first_name",
+                                    "last_name",
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "first_name": {
+                                        "type": "string",
+                                        "example": "Alice"
+                                    },
+                                    "last_name": {
+                                        "type": "string",
+                                        "example": "Dupont"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "alice@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "secret123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Utilisateur bien ajouté"
+                    },
+                    "400": {
+                        "description": "Données invalides ou manquantes"
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "summary": "Connexion d'un utilisateur",
+                "description": "Permet à un utilisateur de se connecter en fournissant son email et mot de passe.",
+                "operationId": "b5e4a9b6b2e51f894726ff59c31842d7",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "alice@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "secret123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Connexion réussie, token JWT retourné"
+                    },
+                    "401": {
+                        "description": "Email ou mot de passe incorrect"
+                    }
+                }
+            }
+        },
+        "/me": {
+            "get": {
+                "summary": "Récupérer les informations de l'utilisateur connecté",
+                "description": "Retourne les données de l'utilisateur authentifié via le token JWT",
+                "operationId": "c9a5c0f316ed5b6c2e1dd264f3167b50",
+                "responses": {
+                    "200": {
+                        "description": "Informations de l'utilisateur récupérées avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "first_name": {
+                                            "type": "string",
+                                            "example": "Alice"
+                                        },
+                                        "last_name": {
+                                            "type": "string",
+                                            "example": "Dupont"
+                                        },
+                                        "email": {
+                                            "type": "string",
+                                            "example": "alice@example.com"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Token manquant ou invalide"
+                    }
+                },
+                "security": [
+                    {
+                        "X-AUTH-TOKEN": []
+                    }
+                ]
+            }
+        },
+        "/me/update": {
+            "put": {
+                "summary": "Modifier les informations de l'utilisateur connecté",
+                "description": "Met à jour les données de l'utilisateur authentifié via le token JWT",
+                "operationId": "68de9133dda2406ab8cfa366248945b8",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "first_name",
+                                    "last_name",
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "first_name": {
+                                        "type": "string",
+                                        "example": "Alice"
+                                    },
+                                    "last_name": {
+                                        "type": "string",
+                                        "example": "Dupont"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "alice@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "secret123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Utilisateur modifié avec succès"
+                    },
+                    "401": {
+                        "description": "Non autorisé"
+                    }
+                },
+                "security": [
+                    {
+                        "X-AUTH-TOKEN": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "X-AUTH-TOKEN": {
+                "type": "apiKey",
+                "name": "X-AUTH-TOKEN",
+                "in": "header"
+            }
+        }
+    }
+}

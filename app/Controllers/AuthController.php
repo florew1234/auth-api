@@ -6,42 +6,92 @@ use App\Models\User;
 use Firebase\JWT\JWT;
 use Dotenv\Dotenv;
 
+use OpenApi\Annotations as OA;
+
+/**
+ * @OA\Info(
+ *     title="API Simple en PHP",
+ *     version="1.0.0",
+ *     description="Une API sans framework avec documentation Swagger"
+ * )
+ *
+ * @OA\Server(
+ *     url="http://localhost:8000",
+ *     description="Serveur local"
+ * )
+ *
+ * @OA\SecurityScheme(
+ *     securityScheme="X-AUTH-TOKEN",
+ *     type="apiKey",
+ *     in="header",
+ *     name="X-AUTH-TOKEN"
+ * )
+ */
+
+
+
 class AuthController
 {
 
     private function getAuthenticatedUser()
-{
-    $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
-    $dotenv->load();
+    {
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
+        $dotenv->load();
 
-    $headers = getallheaders();
-    $token = $headers['X-AUTH-TOKEN'] ?? null;
+        $headers = getallheaders();
+        $token = $headers['X-AUTH-TOKEN'] ?? null;
 
-    if (!$token) {
-        http_response_code(401);
-        echo json_encode(['error' => 'Missing token']);
-        exit;
-    }
-
-    try {
-        $decoded = JWT::decode($token, new \Firebase\JWT\Key($_ENV['JWT_SECRET_KEY'], 'HS256'));
-        $userId = $decoded->sub;
-        $user = User::getById($userId);
-
-        if (!$user) {
+        if (!$token) {
             http_response_code(401);
-            echo json_encode(['error' => 'User not found']);
+            echo json_encode(['error' => 'Missing token']);
             exit;
         }
 
-        return $user;
-    } catch (\Exception $e) {
-        http_response_code(401);
-        echo json_encode(['error' => 'Invalid token', 'details' => $e->getMessage()]);
-        exit;
-    }
-}
+        try {
+            $decoded = JWT::decode($token, new \Firebase\JWT\Key($_ENV['JWT_SECRET_KEY'], 'HS256'));
+            $userId = $decoded->sub;
+            $user = User::getById($userId);
 
+            if (!$user) {
+                http_response_code(401);
+                echo json_encode(['error' => 'User not found']);
+                exit;
+            }
+
+            return $user;
+        } catch (\Exception $e) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Invalid token', 'details' => $e->getMessage()]);
+            exit;
+        }
+    }
+
+
+    /**
+ * @OA\Post(
+ *     path="/register",
+ *     summary="Inscription d'un utilisateur",
+ *     description="Permet à un nouvel utilisateur de s'inscrire en fournissant son prénom, nom, email et mot de passe.",
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"first_name", "last_name", "email", "password"},
+ *             @OA\Property(property="first_name", type="string", example="Alice"),
+ *             @OA\Property(property="last_name", type="string", example="Dupont"),
+ *             @OA\Property(property="email", type="string", example="alice@example.com"),
+ *             @OA\Property(property="password", type="string", example="secret123")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Utilisateur bien ajouté"
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Données invalides ou manquantes"
+ *     )
+ * )
+ */
 
     // Méthode pour l'inscription d'un utilisateur
     public function register()
@@ -75,6 +125,31 @@ class AuthController
         echo json_encode(['message' => 'User created successfully']);
     }
 
+
+
+    /**
+ * @OA\Post(
+ *     path="/login",
+ *     summary="Connexion d'un utilisateur",
+ *     description="Permet à un utilisateur de se connecter en fournissant son email et mot de passe.",
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"email", "password"},
+ *             @OA\Property(property="email", type="string", example="alice@example.com"),
+ *             @OA\Property(property="password", type="string", example="secret123")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Connexion réussie, token JWT retourné"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Email ou mot de passe incorrect"
+ *     )
+ * )
+ */
     // Méthode pour la connexion d'un utilisateur
     public function login()
     {
@@ -128,6 +203,33 @@ class AuthController
         echo json_encode(['token' => $jwt]);
     }
 
+
+
+ /**
+ * @OA\Get(
+ *     path="/me",
+ *     summary="Récupérer les informations de l'utilisateur connecté",
+ *     description="Retourne les données de l'utilisateur authentifié via le token JWT",
+ *     security={{"X-AUTH-TOKEN":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Informations de l'utilisateur récupérées avec succès",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="id", type="integer", example=1),
+ *             @OA\Property(property="first_name", type="string", example="Alice"),
+ *             @OA\Property(property="last_name", type="string", example="Dupont"),
+ *             @OA\Property(property="email", type="string", example="alice@example.com")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Token manquant ou invalide"
+ *     )
+ * )
+ */
+
+
     public function getUserInfo()
     {
         $data = json_decode(file_get_contents("php://input"), true);
@@ -146,32 +248,61 @@ class AuthController
         }
     }
 
-   public function updateUserInfo()
-{
-    $user = $this->getAuthenticatedUser();
 
-    $data = json_decode(file_get_contents("php://input"), true);
 
-    if (
-        empty($data['first_name']) || !is_string($data['first_name']) ||
-        empty($data['last_name']) || !is_string($data['last_name'])
-    ) {
-        echo json_encode(['error' => 'Invalid input data']);
-        return;
+   /**
+ * @OA\Put(
+ *     path="/me/update",
+ *     summary="Modifier les informations de l'utilisateur connecté",
+ *     description="Met à jour les données de l'utilisateur authentifié via le token JWT",
+ *     security={{"X-AUTH-TOKEN":{}}},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"first_name", "last_name", "email", "password"},
+ *             @OA\Property(property="first_name", type="string", example="Alice"),
+ *             @OA\Property(property="last_name", type="string", example="Dupont"),
+ *             @OA\Property(property="email", type="string", example="alice@example.com"),
+ *             @OA\Property(property="password", type="string", example="secret123")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Utilisateur modifié avec succès"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Non autorisé"
+ *     )
+ * )
+ */
+
+    // Mettre à jour les informations d'un utilisateur
+    public function updateUserInfo()
+    {
+        $user = $this->getAuthenticatedUser();
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        if (
+            empty($data['first_name']) || !is_string($data['first_name']) ||
+            empty($data['last_name']) || !is_string($data['last_name'])
+        ) {
+            echo json_encode(['error' => 'Invalid input data']);
+            return;
+        }
+
+        $first_name = trim($data['first_name']);
+        $last_name = trim($data['last_name']);
+
+        if (User::updateUserInfo($user->id, $first_name, $last_name)) {
+            $updatedUser = User::getById($user->id);
+            echo json_encode([
+                'message' => 'Success, user updated',
+                'user' => $updatedUser
+            ]);
+        } else {
+            echo json_encode(['error' => 'Failed to update user']);
+        }
     }
-
-    $first_name = trim($data['first_name']);
-    $last_name = trim($data['last_name']);
-
-    if (User::updateUserInfo($user->id, $first_name, $last_name)) {
-        $updatedUser = User::getById($user->id);
-        echo json_encode([
-            'message' => 'Success, user updated',
-            'user' => $updatedUser
-        ]);
-    } else {
-        echo json_encode(['error' => 'Failed to update user']);
-    }
-}
-
 }
