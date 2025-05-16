@@ -280,7 +280,8 @@ class AuthController
     // Mettre à jour les informations d'un utilisateur
     public function updateUserInfo()
     {
-        $user = $this->getAuthenticatedUser();
+            $user = $_REQUEST['authenticated_user'];
+
 
         $data = json_decode(file_get_contents("php://input"), true);
 

@@ -79,7 +79,7 @@ Une API simple d’authentification construite avec PHP natif, utilisant **JWT (
 
 
 
-2. Configure ta base de données :
+3. Configure ta base de données :
    - Crée une base `auth_api`
    - Exécute ce SQL :
      ```sql
@@ -89,10 +89,25 @@ Une API simple d’authentification construite avec PHP natif, utilisant **JWT (
          last_name VARCHAR(100),
          email VARCHAR(255) UNIQUE,
          password TEXT
-     );
+     ); 
+     
+     ou
+     -lance le fichier de migration avec ces scripts à la racine du projet si tu es en zsh:
+
+      ./scripts/createMigration.zsh users : pour créer le fichier de migration. Adapte le contenu du fichier pour y avoir cette requete:
+
+      CREATE TABLE users (
+         id INT AUTO_INCREMENT PRIMARY KEY,
+         first_name VARCHAR(100),
+         last_name VARCHAR(100),
+         email VARCHAR(255) UNIQUE,
+         password TEXT
+     ); 
+
+      ensuite exécute ./scripts/runMigrations.zsh : pour lancer ta migration
      ```
 
-3. Crée un fichier `.env` en remplacant ses valeurs par tes propres données :
+4. Crée un fichier `.env` en remplacant ses valeurs par tes propres données :
    ```env
    DB_HOST=localhost
    DB_NAME=auth_api
@@ -101,7 +116,7 @@ Une API simple d’authentification construite avec PHP natif, utilisant **JWT (
    JWT_SECRET=ton_super_secret
    ```
 
-4. Lance le serveur :
+5. Lance le serveur :
 Déplace toi dans le dossier public et fais:
    ```bash
    php -S localhost:8000
@@ -156,7 +171,7 @@ curl -X POST http://localhost:8000/login \
 }'
 ```
 
-> Cette commande retourne un token JWT à utiliser avec `/me`.
+Cette commande retourne un token JWT à utiliser avec `/me`.
 
 ### Récupérer les infos de l'utilisateur connecté
 
@@ -179,6 +194,9 @@ curl -X PUT http://localhost:8000/me/update \
 ```
 
 ---
+## Client API utilisé
+Postman
+
 ## Lien vers la Documentation
 http://localhost:8000/swagger-ui/dist/index.html
 
