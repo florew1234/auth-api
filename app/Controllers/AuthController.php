@@ -81,6 +81,7 @@ class AuthController
 
         $user = User::getByEmail($email);
         if ($user) {
+            http_response_code(400);
             echo json_encode(['error' => 'Email already in use.']);
             return;
         }

@@ -89,7 +89,7 @@ cp .env.example .env
    - Crée le fichier de migration avec ce script
 
       ```bash
-      ./scripts/createMigration.zsh users 
+      ./scripts/createMigration.sh users 
       ```
    - Ensuite adapte le contenu du fichier pour y avoir cette requete:
      ```sql
