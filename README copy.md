@@ -209,7 +209,7 @@ The collection contains the main CRUD operations, with automated tests for each 
 ````
 - Command to install swagger-ui
 ```bash
- npm install swagger-ui-dist²
+ npm install swagger-ui-dist
 ```
 
 2. Comment your routes using OpenAPI syntax (annotations in PHP files).

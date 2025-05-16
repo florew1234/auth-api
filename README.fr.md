@@ -27,6 +27,7 @@ Une API simple d’authentification construite avec PHP natif, utilisant **JWT (
 - PHP 8.3
 - JWT (via un service custom)
 - MySQL 8.0
+- Composer 2.8.5
 - HTTP natif (`getallheaders`, `json_encode`)
 
 ---
@@ -36,7 +37,6 @@ Une API simple d’authentification construite avec PHP natif, utilisant **JWT (
 - firebase/php-jwt : pour la gestion des tokens,
 - vlucas/phpdotenv : pour chrager les variables depuis le .env dans d'autre fichiers ,
 - zircote/swagger-php : pour la documentation de l'API,
-
 
 ---
 
@@ -71,32 +71,28 @@ Une API simple d’authentification construite avec PHP natif, utilisant **JWT (
 1. Clone ce repo :
    ```bash
    git clone https://github.com/florew1234/auth-api.git
-   cd auth-api
+   cd auth-api 
    ```
 
-2. Commande à exécuter :
+2. Installer les dépendances PHP :
    ```bash
   composer install
    ```
 
+3. Copier le fichier .env d'exemple
+   ```bash
+cp .env.example .env
+    ```
 
-
-3. Configure ta base de données :
+4. Configure ta base de données :
    - Crée une base `auth_api`
-   - Exécute ce SQL :
-     ```sql
-     CREATE TABLE users (
-         id INT AUTO_INCREMENT PRIMARY KEY,
-         first_name VARCHAR(100),
-         last_name VARCHAR(100),
-         email VARCHAR(255) UNIQUE,
-         password TEXT
-     ); 
-     
-     ou
-     -lance le fichier de migration avec ces scripts à la racine du projet si tu es en zsh:
+   - Crée le fichier de migration avec ce script
 
-      ./scripts/createMigration.zsh users : pour créer le fichier de migration. Adapte le contenu du fichier pour y avoir cette requete:
+      ```bash
+      ./scripts/createMigration.zsh users 
+      ```
+   - Ensuite adapte le contenu du fichier pour y avoir cette requete:
+     ```sql
 
       CREATE TABLE users (
          id INT AUTO_INCREMENT PRIMARY KEY,
@@ -106,17 +102,25 @@ Une API simple d’authentification construite avec PHP natif, utilisant **JWT (
          password TEXT
      ); 
 
-      ensuite exécute ./scripts/runMigrations.zsh : pour lancer ta migration
      ```
 
-4. Crée un fichier `.env` en remplacant ses valeurs par tes propres données :
-   ```env
-   DB_HOST=localhost
-   DB_NAME=auth_api
-   DB_USER=root
-   DB_PASS=
+    - Exécute ce script pour effectuer la migration
+      ```bash
+     ./scripts/runMigrations.zsh 
+      ```
+
+4. Copier le fichier .env d'exemple
+  ```bash
+  cp .env.example .env
+  ```
+Modifie le fichier .env en y mettant tes propres accès.
+  ```env
+   DB_HOST=ton localhost
+   DB_NAME=le nom de ta db
+   DB_USER=l'utilisateur de la db
+   DB_PASS=le mot de passe de ton mysql 
    JWT_SECRET=ton_super_secret
-   ```
+    ```
 
 5. Lance le serveur :
 Déplace toi dans le dossier public et fais:
@@ -125,6 +129,10 @@ Déplace toi dans le dossier public et fais:
    ```
 
 ---
+
+
+# Documentation Technique.
+
 
 ## Endpoints disponibles
 
@@ -209,10 +217,6 @@ La collection contient les principales opérations CRUD, avec des tests automati
 - Télécharger la collection Postman ici: postman/auth_api.postman_collection.json
 
 
-
-
-## Documentation Technique.
-
 ### Générer ou mettre à jour la documentation :
 
 1. Assures-toi d’avoir installé swagger (swagger-php et swagger-ui).
@@ -237,8 +241,6 @@ Un fichier swagger.json est généré à la racine du projet.
 ### Consulter la documentation
 Accède à la documentation sur ce lien 
 http://localhost:8000/swagger-ui/dist/index.html
-
-
 
 
 ## Auteur
