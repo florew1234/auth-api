@@ -85,13 +85,8 @@ cp .env.example .env
     ```
 
 4. Configure ta base de données :
-   - Crée une base `auth_api`
-   - Crée le fichier de migration avec ce script
-
-      ```bash
-      ./scripts/createMigration.sh users 
-      ```
-   - Ensuite adapte le contenu du fichier pour y avoir cette requete:
+   - Crée une base de donnée 
+   - Exécute cette requête
      ```sql
 
       CREATE TABLE users (
@@ -102,12 +97,7 @@ cp .env.example .env
          password TEXT
      ); 
 
-     ```
-
-    - Exécute ce script pour effectuer la migration
-      ```bash
-     ./scripts/runMigrations.zsh 
-      ```
+     ```      
 
 4. Copier le fichier .env d'exemple
   ```bash
