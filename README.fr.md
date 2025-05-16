@@ -75,9 +75,8 @@ Une API simple d’authentification construite avec PHP natif, utilisant **JWT (
    ```
 
 2. Commande à exécuter :
-   ```
-  composer install : pour installer toutes les dépendances du projet.
-  ./vendor/bin/openapi --output swagger.json ./docs ./app : pour générer la documentation du projet.
+   ```bash
+  composer install
    ```
 
 

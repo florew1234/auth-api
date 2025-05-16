@@ -48,27 +48,28 @@ A simple authentication API built with native PHP, using **JWT (JSON Web Token)*
 │ │ └── AuthMiddleware.php
 │ └── Models
 │ └── User.php
-````
+```
 ---
-
 
 ## Prerequisites
 - PHP ≥ 8.0
 - Local web server (Apache, Nginx, or PHP Built-in Server)
 - MySQL database
+
+
 ---
 
 
 ## Launch project locally
+
 1. Clone this repo:
  ```bash
  git clone https://github.com/florew1234/auth-api.git
  cd auth-api
  ```
 2. Command to run:
- ````
- compose install: to install all project dependencies.
-./vendor/bin/openapi --output swagger.json ./docs ./app: to generate project documentation.
+ ```bash
+ compose install
    ```
 
 
@@ -86,7 +87,7 @@ A simple authentication API built with native PHP, using **JWT (JSON Web Token)*
  );
      
      or
-     run the migration file with these scripts at the project root if you're using zsh:
+     run the migration file with these scripts at the project root if you`'`re using zsh:
 ./scripts/createMigration.zsh users : to create the migration file. Adapt the contents of the file to include this query:
  CREATE TABLE users (
  id INT AUTO_INCREMENT PRIMARY KEY,
@@ -111,7 +112,7 @@ A simple authentication API built with native PHP, using **JWT (JSON Web Token)*
 Go to the public folder and do:
  ```bash
  php -S localhost:8000
- ````
+ ```
 
 
 ---
@@ -133,7 +134,7 @@ Go to the public folder and do:
 The JWT token is sent via the following HTTP header:
 ```http
 X-AUTH-TOKEN: {your_token}
-````
+```
 
 
 ---
@@ -150,7 +151,7 @@ curl -X POST http://localhost:8000/register \
  "email": "alice@example.com",
  "password": "secret123"
 }'
-````
+```
 ### Log in
 ```bash
 curl -X POST http://localhost:8000/login \
@@ -199,13 +200,41 @@ The collection contains the main CRUD operations, with automated tests for each 
 
 ## Technical documentation.
 
+### Generate or update documentation:
 
-### How to generate or update documentation:
 1. Make sure you have installed swagger (swagger-php and swagger-ui).
   - Command to install swagger-php
 ```bash
  composer require zircote/swagger-php
+````
+- Command to install swagger-ui
+```bash
+ npm install swagger-ui-dist
 ```
-- Command to inst
 
-Translated with DeepL.com (free version)
+2. Comment your routes using OpenAPI syntax (annotations in PHP files).
+
+3. Run the following command in the project root:
+```bash
+./vendor/bin/openapi --output swagger.json ./app, 
+``` 
+A swagger.json file is generated in the project root.
+
+
+4. Next, move this file to the public/swagger-ui/dist folder. If there was already a swagger.json file, replace it.
+
+### View documentation
+Access documentation at 
+http://localhost:8000/swagger-ui/dist/index.html
+
+
+
+
+## Author
+
+- **Florette AHOLOU**
+- [LinkedIn](www.linkedin.com/in/florette-aholou-16969b304)
+- [Portfolio](https://portfolio-florew1234s-projects.vercel.app)
+- Email : ahlflorew@gmail.com
+
+
