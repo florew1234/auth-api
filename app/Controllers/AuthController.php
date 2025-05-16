@@ -32,41 +32,6 @@ use OpenApi\Annotations as OA;
 
 class AuthController
 {
-
-    private function getAuthenticatedUser()
-    {
-        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
-        $dotenv->load();
-
-        $headers = getallheaders();
-        $token = $headers['X-AUTH-TOKEN'] ?? null;
-
-        if (!$token) {
-            http_response_code(401);
-            echo json_encode(['error' => 'Missing token']);
-            exit;
-        }
-
-        try {
-            $decoded = JWT::decode($token, new \Firebase\JWT\Key($_ENV['JWT_SECRET_KEY'], 'HS256'));
-            $userId = $decoded->sub;
-            $user = User::getById($userId);
-
-            if (!$user) {
-                http_response_code(401);
-                echo json_encode(['error' => 'User not found']);
-                exit;
-            }
-
-            return $user;
-        } catch (\Exception $e) {
-            http_response_code(401);
-            echo json_encode(['error' => 'Invalid token', 'details' => $e->getMessage()]);
-            exit;
-        }
-    }
-
-
     /**
  * @OA\Post(
  *     path="/register",

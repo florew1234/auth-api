@@ -1,208 +1,211 @@
+🇫🇷 [Lire ce fichier en français](README.fr.md)
+
 # auth-api
-
-# API d’authentification PHP avec JWT
-
-Une API simple d’authentification construite avec PHP natif, utilisant **JWT (JSON Web Token)** pour la gestion des sessions côté serveur.
+# PHP authentication API with JWT
+A simple authentication API built with native PHP, using **JWT (JSON Web Token)** for server-side session management.
 
 ---
 
-## Fonctionnalités
+## Features
+- New user registration (`/register`)
+- User login (`/login`)
+- Recover logged-in user via token (`/me`)
+- Modify token user info (`/me/update`)
+- Secure authentication with **X-Auth-Token**.
+- Encryption of password with `password_hash`.
+- Verify password with `password_verify
+- JWT signed with secret key
 
-- Enregistrement d’un nouvel utilisateur (`/register`)
-- Connexion d’un utilisateur (`/login`)
-- Récupération de l’utilisateur connecté via token (`/me`)
-- Modification des infos de l’utilisateur connecté via token (`/me/update`)
-- Authentification sécurisée avec **X-Auth-Token**
-- Encodage du mot de passe avec `password_hash`
-- Vérification avec `password_verify`
-- JWT signé avec une clé secrète
 
 ---
 
-## Technologies utilisées
-
+## Technologies used
 - PHP 8.3
-- JWT (via un service custom)
+- JWT (via a custom service)
 - MySQL 8.0
-- HTTP natif (`getallheaders`, `json_encode`)
+- Native HTTP (`getallheaders`, `json_encode`)
 
 ---
 
-## Packages utilisés
 
-- firebase/php-jwt : pour la gestion des tokens,
-- vlucas/phpdotenv : pour chrager les variables depuis le .env dans d'autre fichiers ,
-- zircote/swagger-php : pour la documentation de l'API,
-
+## Packages used
+- firebase/php-jwt : for token management,
+- vlucas/phpdotenv: for chraging variables from .env into other files,
+- zircote/swagger-php: for API documentation,
 
 ---
 
-## Organisation minimale des fichiers
 
+## Minimal file organization
 ```
 ├── app
-│   ├── Controllers
-│   │   └── AuthController.php
-│   ├── Core
-│   │   ├── Database.php
-│   │   └── Router.php
-│   ├── Middlewares
-│   │   └── AuthMiddleware.php
-│   └── Models
-│       └── User.php
-
-```
-
+│ ├── Controllers
+│ │ └── AuthController.php
+│ ├── Core
+│ │ ├── Database. php
+│ │ └── Router.php
+│ ├── Middlewares
+│ │ └── AuthMiddleware.php
+│ └── Models
+│ └── User.php
+````
 ---
 
-## Pré-requis
 
+## Prerequisites
 - PHP ≥ 8.0
-- Serveur web local (Apache, Nginx, ou PHP Built-in Server)
-- Base de données MySQL
-
+- Local web server (Apache, Nginx, or PHP Built-in Server)
+- MySQL database
 ---
 
-## Lancer le projet en local
 
-1. Clone ce repo :
-   ```bash
-   git clone https://github.com/florew1234/auth-api.git
-   cd auth-api
+## Launch project locally
+1. Clone this repo:
+ ```bash
+ git clone https://github.com/florew1234/auth-api.git
+ cd auth-api
+ ```
+2. Command to run:
+ ````
+ compose install: to install all project dependencies.
+./vendor/bin/openapi --output swagger.json ./docs ./app: to generate project documentation.
    ```
 
-2. Commande à exécuter :
-   ```
-  composer install : pour installer toutes les dépendances du projet.
-  ./vendor/bin/openapi --output swagger.json ./docs ./app : pour générer la documentation du projet.
-   ```
 
+3. Configure your database:
+   - Create an `auth_api` database
+   - Execute this SQL:
 
-
-3. Configure ta base de données :
-   - Crée une base `auth_api`
-   - Exécute ce SQL :
-     ```sql
-     CREATE TABLE users (
-         id INT AUTO_INCREMENT PRIMARY KEY,
-         first_name VARCHAR(100),
-         last_name VARCHAR(100),
-         email VARCHAR(255) UNIQUE,
-         password TEXT
-     ); 
+ ```sql
+ CREATE TABLE users (
+ id INT AUTO_INCREMENT PRIMARY KEY,
+ first_name VARCHAR(100),
+ last_name VARCHAR(100),
+ email VARCHAR(255) UNIQUE,
+ password TEXT
+ );
      
-     ou
-     -lance le fichier de migration avec ces scripts à la racine du projet si tu es en zsh:
+     or
+     run the migration file with these scripts at the project root if you're using zsh:
+./scripts/createMigration.zsh users : to create the migration file. Adapt the contents of the file to include this query:
+ CREATE TABLE users (
+ id INT AUTO_INCREMENT PRIMARY KEY,
+ first_name VARCHAR(100),
+ last_name VARCHAR(100),
+ email VARCHAR(255) UNIQUE,
+ password TEXT
+ ); 
+ ```
+ 
+ then run ./scripts/runMigrations.zsh : to launch your migration
 
-      ./scripts/createMigration.zsh users : pour créer le fichier de migration. Adapte le contenu du fichier pour y avoir cette requete:
+ 4. Create an `.env` file, replacing its values with your own data:
+ ```env
+ DB_HOST=localhost
+ DB_NAME=auth_api
+ DB_USER=root
+ DB_PASS=
+ JWT_SECRET=ton_super_secret
+ ```
+5. Run the server:
+Go to the public folder and do:
+ ```bash
+ php -S localhost:8000
+ ````
 
-      CREATE TABLE users (
-         id INT AUTO_INCREMENT PRIMARY KEY,
-         first_name VARCHAR(100),
-         last_name VARCHAR(100),
-         email VARCHAR(255) UNIQUE,
-         password TEXT
-     ); 
-
-      ensuite exécute ./scripts/runMigrations.zsh : pour lancer ta migration
-     ```
-
-4. Crée un fichier `.env` en remplacant ses valeurs par tes propres données :
-   ```env
-   DB_HOST=localhost
-   DB_NAME=auth_api
-   DB_USER=root
-   DB_PASS=
-   JWT_SECRET=ton_super_secret
-   ```
-
-5. Lance le serveur :
-Déplace toi dans le dossier public et fais:
-   ```bash
-   php -S localhost:8000
-   ```
 
 ---
 
-## Endpoints disponibles
 
-| Méthode | Endpoint  | Description                   |
+## Endpoints available
+| Method | Endpoint | Description |
 |--------:|-----------|-------------------------------|
-| POST    | /register | Enregistrement d’un utilisateur |
-| POST    | /login    | Connexion                     |
-| GET     | /me       | Infos de l'utilisateur (token requis) |
-| GET     | /me /update      | Modifier infos de l'utilisateur (token requis) |
+| POST | /register | User registration |
+| POST | /login | Connection |
+| GET | /me | User info (token required) |
+| GET | /me /update | Modify user info (token required) |
+
 
 ---
 
-## Authentification
 
-Le token JWT est envoyé via l’en-tête HTTP suivant :
-
+## Authentication
+The JWT token is sent via the following HTTP header:
 ```http
-X-AUTH-TOKEN: {votre_token}
-```
+X-AUTH-TOKEN: {your_token}
+````
+
 
 ---
 
-## Exemple de requêtes avec `curl`
 
-### Enregistrer un utilisateur
-
+## Example of `curl` requests
+### Register a user
 ```bash
 curl -X POST http://localhost:8000/register \
 -H "Content-Type: application/json" \
 -d '{
-  "first_name": "Alice",
-  "last_name": "Dupont",
-  "email": "alice@example.com",
-  "password": "secret123"
+ "first_name": "Alice",
+ "last_name": "Dupont",
+ "email": "alice@example.com",
+ "password": "secret123"
 }'
-```
-
-### Se connecter
-
+````
+### Log in
 ```bash
 curl -X POST http://localhost:8000/login \
 -H "Content-Type: application/json" \
 -d '{
-  "email": "alice@example.com",
-  "password": "secret123"
+ "email": "alice@example.com",
+ "password": "secret123"
 }'
 ```
+This command returns a JWT token for use with `/me`.
 
-Cette commande retourne un token JWT à utiliser avec `/me`.
 
-### Récupérer les infos de l'utilisateur connecté
-
+### Retrieve info from logged-in user
 ```bash
 curl -X GET http://localhost:8000/me \
--H "X-AUTH-TOKEN: {votre_token_ici}"
+H "X-AUTH-TOKEN: {your_token_here}"
 ```
 
-### Modifier les infos de l'utilisateur connecté
+### Modify logged-in user info
 ```bash
 curl -X PUT http://localhost:8000/me/update \
--H "X-AUTH-TOKEN: {votre_token_ici}" \
+-H "X-AUTH-TOKEN: {your_token_here}" \
 -H "Content-Type: application/json" \
 -d '{
-  "first_name": "Alice1",
-  "last_name": "Dupont",
-  "email": "alice@example.com",
-  "password": "secret123"
+ "first_name": "Alice1",
+ "last_name": "Dupont",
+ "email": "alice@example.com",
+ "password": "secret123"
 }'
 ```
 
+
 ---
-## Client API utilisé
-Postman
 
-## Lien vers la Documentation
-http://localhost:8000/swagger-ui/dist/index.html
 
-## Auteur
+## API testing with Postman
+All routes have been tested with [Postman](https://www.postman.com/).  
+The collection contains the main CRUD operations, with automated tests for each request.
+- GET, POST, PUT requests
+- Authentication (login)
+- Use of variables (`base_url`)
+- HTTP response tests (200, 201, 400, 401.)
+- Download the Postman collection here: postman/auth_api.postman_collection.json
 
-- **Florette AHOLOU**
-- [LinkedIn](www.linkedin.com/in/florette-aholou-16969b304)
-- [Portfolio](https://portfolio-florew1234s-projects.vercel.app)
-- Email : ahlflorew@gmail.com
+
+
+## Technical documentation.
+
+
+### How to generate or update documentation:
+1. Make sure you have installed swagger (swagger-php and swagger-ui).
+  - Command to install swagger-php
+```bash
+ composer require zircote/swagger-php
+```
+- Command to inst
+
+Translated with DeepL.com (free version)
