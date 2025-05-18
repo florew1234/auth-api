@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Controllers;
 
 use App\Models\User;
@@ -70,6 +69,7 @@ class AuthController
             empty($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL) ||
             empty($data['password']) || strlen($data['password']) < 6
         ) {
+            http_response_code(400);
             echo json_encode(['error' => 'Invalid input data. Make sure first_name and last_name are strings, email is valid and password is at least 6 characters.']);
             return;
         }
@@ -117,57 +117,67 @@ class AuthController
  * )
  */
     // Méthode pour la connexion d'un utilisateur
-    public function login()
-    {
-        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
-        $dotenv->load();
+   public function login()
+{
+    $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
+    $dotenv->load();
 
-        $data = json_decode(file_get_contents("php://input"), true);
+    $data = json_decode(file_get_contents("php://input"), true);
 
-        if (empty($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            echo json_encode(['error' => 'Invalid email']);
-            return;
-        }
-
-        if (empty($data['password']) || !is_string($data['password'])) {
-            echo json_encode(['error' => 'Invalid password']);
-            return;
-        }
-
-        $email = trim($data['email']);
-        $password = $data['password'];
-
-        $user = User::getByEmail($email);
-        if (!$user) {
-            echo json_encode(['message' => 'User not found']);
-            return;
-        }
-
-        if (!password_verify($password, $user->password)) {
-            echo json_encode(['message' => 'Incorrect password']);
-            return;
-        }
-
-        $key = $_ENV['JWT_SECRET_KEY'] ?? null;
-
-        if (!$key || !is_string($key)) {
-            http_response_code(500);
-            echo json_encode(['error' => 'JWT secret key is not configured properly.', 'key' => $key]);
-            exit;
-        }
-
-        $issuedAt = time();
-        $expirationTime = $issuedAt + 300;
-
-        $payload = [
-            'iat' => $issuedAt,
-            'exp' => $expirationTime,
-            'sub' => $user->id
-        ];
-
-        $jwt = JWT::encode($payload, $key, 'HS256');
-        echo json_encode(['token' => $jwt]);
+    // Validation de l'email
+    if (empty($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid email']);
+        return;
     }
+
+    // Validation du mot de passe
+    if (empty($data['password']) || !is_string($data['password'])) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid password']);
+        return;
+    }
+
+    $email = trim($data['email']);
+    $password = $data['password'];
+
+    // Recherche de l'utilisateur
+    $user = User::getByEmail($email);
+    if (!$user) {
+        http_response_code(404);
+        echo json_encode(['error' => 'User not found']);
+        return;
+    }
+
+    // Vérification du mot de passe
+    if (!password_verify($password, $user->password)) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Incorrect password']);
+        return;
+    }
+
+    // Vérification de la clé JWT
+    $key = $_ENV['JWT_SECRET_KEY'] ?? null;
+    if (!$key || !is_string($key)) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Server configuration error: JWT secret key is missing or invalid']);
+        return;
+    }
+
+    // Création du token JWT
+    $issuedAt = time();
+    $expirationTime = $issuedAt + 300; // 5 minutes
+
+    $payload = [
+        'iat' => $issuedAt,
+        'exp' => $expirationTime,
+        'sub' => $user->id
+    ];
+
+    $jwt = JWT::encode($payload, $key, 'HS256');
+    http_response_code(200); // Explicitement définir le code 200 pour une réponse réussie
+    echo json_encode(['token' => $jwt]);
+}
 
 
 
@@ -201,6 +211,7 @@ class AuthController
         $data = json_decode(file_get_contents("php://input"), true);
 
         if (empty($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            http_response_code(400);
             echo json_encode(['error' => 'Invalid email']);
             return;
         }
@@ -208,8 +219,10 @@ class AuthController
         $email = trim($data['email']);
         $user = User::getByEmail($email);
         if ($user) {
+            http_response_code(200);
             echo json_encode(['message' => 'Success', 'user' => $user]);
         } else {
+            http_response_code(404);
             echo json_encode(['error' => 'User not found']);
         }
     }
@@ -255,6 +268,7 @@ class AuthController
             empty($data['first_name']) || !is_string($data['first_name']) ||
             empty($data['last_name']) || !is_string($data['last_name'])
         ) {
+            http_response_code(400);
             echo json_encode(['error' => 'Invalid input data']);
             return;
         }
@@ -269,6 +283,7 @@ class AuthController
                 'user' => $updatedUser
             ]);
         } else {
+            http_response_code(400);
             echo json_encode(['error' => 'Failed to update user']);
         }
     }
