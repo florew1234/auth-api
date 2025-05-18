@@ -175,7 +175,7 @@ class AuthController
     ];
 
     $jwt = JWT::encode($payload, $key, 'HS256');
-    http_response_code(200); // Explicitement définir le code 200 pour une réponse réussie
+    http_response_code(200); 
     echo json_encode(['token' => $jwt]);
 }
 
